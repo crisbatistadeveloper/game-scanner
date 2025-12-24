@@ -11,10 +11,11 @@ async function handler(req: NextRequest, ctx: any) {
       }),
     ],
     secret: process.env.NEXTAUTH_SECRET,
+    trustHost: true, // <--- A chave para funcionar na Vercel
     callbacks: {
       async session({ session, token }: any) {
         if (session?.user) {
-          // Captura o ID da Steam para usarmos no futuro
+          // Captura o ID da Steam e Avatar para o front-end
           session.user.steamId = token.sub;
           session.user.image = token.picture;
         }
@@ -25,8 +26,8 @@ async function handler(req: NextRequest, ctx: any) {
           token.steamId = profile.steamid;
         }
         return token;
-      }
-    }
+      },
+    },
   });
 }
 
