@@ -1,9 +1,11 @@
-import NextAuth from "next-auth";
+import NextAuth from "next-auth/next";
 import SteamProvider from "next-auth-steam";
 import type { NextRequest } from "next/server";
 
 async function handler(req: NextRequest, ctx: any) {
-  return NextAuth(req, ctx, {
+  // AQUI ESTÁ A MUDANÇA: Adicionei (NextAuth as any)
+  // Isso força o TypeScript a aceitar os argumentos sem reclamar
+  return (NextAuth as any)(req, ctx, {
     providers: [
       SteamProvider(req, {
         clientSecret: process.env.STEAM_SECRET!,
@@ -11,11 +13,10 @@ async function handler(req: NextRequest, ctx: any) {
       }),
     ],
     secret: process.env.NEXTAUTH_SECRET,
-    trustHost: true, // <--- A chave para funcionar na Vercel
+    trustHost: true,
     callbacks: {
       async session({ session, token }: any) {
         if (session?.user) {
-          // Captura o ID da Steam e Avatar para o front-end
           session.user.steamId = token.sub;
           session.user.image = token.picture;
         }
